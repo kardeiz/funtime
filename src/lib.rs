@@ -8,14 +8,27 @@ use syn::*;
 #[proc_macro_attribute]
 pub fn timed(attrs: TokenStream, item: TokenStream) -> TokenStream {
 
-    if let Ok(mut fun) = parse::<ItemFn>(item) {
+    if let Ok(mut fun) = parse::<ItemFn>(item.clone()) {
         let new_stmts = rewrite_stmts(fun.sig.ident.to_string(), &fun.block.stmts);
         fun.block.stmts = new_stmts;
         return quote!(#fun).into();
-        // return panic!("{}", quote!(#fun));
     }
 
-    unimplemented!()
+    if let Ok(mut fun) = parse::<TraitItemMethod>(item.clone()) {
+        if let Some(block) = fun.default.as_mut() {
+            let new_stmts = rewrite_stmts(fun.sig.ident.to_string(), &block.stmts);
+            block.stmts = new_stmts;
+            return quote!(#fun).into();
+        }        
+    }
+
+    if let Ok(mut fun) = parse::<ImplItemMethod>(item) {
+        let new_stmts = rewrite_stmts(fun.sig.ident.to_string(), &fun.block.stmts);
+        fun.block.stmts = new_stmts;
+        return quote!(#fun).into();
+    }
+
+    panic!("`funtime::timed` only works on functions")
 }
 
 fn rewrite_stmts(name: String, stmts: &[Stmt]) -> Vec<Stmt> {
