@@ -1,10 +1,13 @@
 [package]
 name = "funtime"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Jacob Brown <kardeiz@gmail.com>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
 description = "A proc-macro helper to time Rust functions"
+readme = "README.md"
+keywords = ["stopwatch", "timing"]
+
 [dependencies]
 syn = { version = "1", features = ["full", "extra-traits"] }
 quote = "1"
