@@ -23,4 +23,17 @@ fn main() {
 }
 ```
 
+Prints:
+
+```
+funtime start: `foo`
+  took 1µs: `let mut x = 1 ;`
+  took 5µs: `let d = 1_000 ;`
+  took 2µs: `x += d ;`
+  took 2µs: `x += y ;`
+funtime end: `foo` took 12µs
+funtime start: `main`
+funtime end: `main` took 36µs
+```
+
 Current version: 0.2.0
