@@ -38,4 +38,6 @@ funtime start: `main`
 funtime end: `main` took 56µs
 ```
 
-Current version: 0.3.0
+Current version: `0.3.0`.
+
+Supports rustc `1.31` and up.
