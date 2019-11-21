@@ -30,6 +30,22 @@ pub fn timed(_attrs: TokenStream, item: TokenStream) -> TokenStream {
 }
 
 fn rewrite_stmts(name: String, stmts: &mut Vec<Stmt>) -> Vec<Stmt> {
+    
+    fn truncate_stmt(stmt: &Stmt, len: usize) -> String {
+        let short =
+            format!("{}", quote::ToTokens::to_token_stream(stmt)).chars().collect::<Vec<_>>();
+
+        let short = if short.len() > len {
+            let mut short = short[..(len - 3)].into_iter().collect::<String>();
+            short.push_str("...");
+            short
+        } else {
+            short.into_iter().collect::<String>()
+        };
+
+        short
+    }
+
     let setup: Block = parse_quote! {{
         struct FuntimeTimer {
             start: std::time::Instant,
@@ -79,16 +95,7 @@ fn rewrite_stmts(name: String, stmts: &mut Vec<Stmt>) -> Vec<Stmt> {
     let last = stmts.pop();
 
     for stmt in stmts.drain(..) {
-        let short =
-            format!("{}", quote::ToTokens::to_token_stream(&stmt)).chars().collect::<Vec<_>>();
-
-        let short = if short.len() > 40 {
-            let mut short = short[..37].into_iter().collect::<String>();
-            short.push_str("...");
-            short
-        } else {
-            short.into_iter().collect::<String>()
-        };
+        let short = truncate_stmt(&stmt, 40);
 
         let next_stmt = parse_quote!(funtime_timer.mark_elapsed(#short););
 
@@ -97,7 +104,19 @@ fn rewrite_stmts(name: String, stmts: &mut Vec<Stmt>) -> Vec<Stmt> {
     }
 
     if let Some(stmt) = last {
-        new_stmts.push(stmt);
+        let short = truncate_stmt(&stmt, 40);
+        let new_stmt = parse_quote! {
+            let funtime_return_val = {
+                #stmt
+            };
+        };
+
+        let next_stmt = parse_quote!(funtime_timer.mark_elapsed(#short););
+        let return_stmt = parse_quote!(return funtime_return_val;);
+
+        new_stmts.push(new_stmt);
+        new_stmts.push(next_stmt);
+        new_stmts.push(return_stmt);
     }
 
     new_stmts

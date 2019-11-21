@@ -31,9 +31,11 @@ funtime start: `foo`
   took 5µs: `let d = 1_000 ;`
   took 2µs: `x += d ;`
   took 2µs: `x += y ;`
+  took 3µs: `x`
 funtime end: `foo` took 12µs
 funtime start: `main`
-funtime end: `main` took 36µs
+  took 49µs: `foo (23) ;`
+funtime end: `main` took 56µs
 ```
 
-Current version: 0.2.0
+Current version: 0.3.0
